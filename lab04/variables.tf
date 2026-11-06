@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "project_name" {
   type        = string
   description = "Short name used as a prefix for all resource names"
-  default     = "ipa-lab03"
+  default     = "ipa-lab04"
 }
 
 variable "environment" {
