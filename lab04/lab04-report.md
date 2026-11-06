@@ -18,7 +18,8 @@ Question 6: Destroy order is the reverse of create order. Using your graph from 
 Ans: เพราะตามลำดับ Dependency ในกราฟ aws_instance.server ต้องพึ่งพา aws_security_group.web และบน AWS เราไม่สามารถลบ Security Group ที่ยังมี EC2 Instance ผูกใช้งานอยู่ได้ จึงต้องลบ Instances ก่อน เสร็จแล้วตัว aws_security_group.web ก็ถูกสร้างอยู่ภายใน module.vpc ซึ่ง AWS ไม่ยอมให้ลบ VPC จนกว่า Resource ย่อยข้างในอย่าง Security Group และ Subnet จะถูกลบออกจนหมด
 
 Question 7: The Terraform documentation calls -target an option for “exceptional situations” only. Give two reasons why routine use of -target is dangerous.
-Ans: อาจจะพลาดความสัมพันธ์ที่ซ่อนอยู่ เพราะว่าการอัปเดตเฉพาะจุดอาจทำให้ Resource อื่นที่ต้องรับค่าต่อเนื่องกันไม่ได้ถูกอัปเดตตาม จนระบบทำงานผิดพลาด และเกิดความไม่สอดคล้องกันระหว่างโค้ดกับระบบจริง
+Ans: 	1) อาจจะพลาดความสัมพันธ์ที่ซ่อนอยู่ เพราะว่าการอัปเดตเฉพาะจุดอาจทำให้ Resource อื่นที่ต้องรับค่าต่อเนื่องกันไม่ได้ถูกอัปเดตตาม จนระบบทำงานผิดพลาด
+	2) อาจจะเกิดความไม่สอดคล้องกันระหว่างโค้ดกับระบบจริง
 
 Question 8: -refresh=false is faster. What is the trade-off?
 Ans: Terraform จะไม่ออกไปเรียก API ตรวจสอบสถานะจริงบน Cloud เลย แต่จะเชื่อข้อมูลเก่าที่แคชไว้ในไฟล์ terraform.tfstate เท่านั้น ทำให้ตรวจไม่พบการเปลี่ยนแปลงที่เกิดขึ้นนอกรอบ และอาจวางแผน Apply ผิดพลาดหากมีคนไปแก้ไขหรือลบ Resource บน AWS Console
@@ -55,14 +56,14 @@ Checkpoint 3: Show both outputs. Explain the difference between what -refresh-on
 	- terraform plan จะยึดโค้ด .tf เป็นศูนย์กลาง จึงมองว่าแท็ก ManualChange = "true" เกินมาจากโค้ด และเสนอให้ทำการแก้ไข Resource บน AWS โดยการลบแท็ก ManualChange ทิ้ง เพื่อให้ระบบจริงกลับมาตรงกับโค้ด
 
 Checkpoint 4: Confirm the instance ID changed. Run terraform output before and after — server_summary and all_private_ips both come from Lab 3’s instances output, so both should move.
-	- จะเห็นว่าใน server_summary และ all_private_ips ค่า Instance ID และ Private IP ของเครื่อง "web" เปลี่ยนเป็นค่าใหม่ ในขณะที่เครื่อง "api" ยังคงเป็น ID และ IP เดิม
+	- จะเห็นว่าใน server_summary และ all_private_ips ค่า Instance ID และ Private IP ของเครื่อง "web" เปลี่ยน Instance ID จาก i-0b308fdb8e7dbcf40 เป็น i-005ab32755662e05d, Private IP เปลี่ยนจาก 10.0.1.196 เป็น 10.0.1.184 และ Public DNS ใน server_summary เปลี่ยนจาก ec2-3-92-193-243.compute-1.amazonaws.com เป็น ec2-13-221-14-15.compute-1.amazonaws.com ในขณะที่เครื่อง "api" ยังคงเป็น ID และ IP เดิม
 	
 Checkpoint 5: Complete this table in your report, ordering from lowest to highest priority:
 	Rank			Source										Value observed
 	- 1 (lowest)	default in variables.tf								"from-default"
 	- 2			Environment variable (TF_VAR_precedence_demo)		"from-env-var"
 	- 3			terraform.tfvars (auto-loaded)						"from-tfvars-file"
-	- 4			Explicit var file (-var-file=custom.tfvars)					Explicit var file (-var-file=custom.tfvars)
+	- 4			Explicit var file (-var-file=custom.tfvars)					"from-custom-file"
 	- 5 (highest)	Command line flag (-var="precedence_demo=from-cli")		"from-cli"
 
 Checkpoint 6: Record the version, terraform_version, serial and lineage values, and the resource count. Compare that count with the number of resource blocks you actually wrote.
